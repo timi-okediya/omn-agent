@@ -1,4 +1,4 @@
-# groq api => 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
+# groq api => 
 from langchain_core.messages import HumanMessage
 from core.graph import app
 from core.state import initial_state

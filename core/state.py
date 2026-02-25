@@ -1,16 +1,33 @@
-from typing import TypedDict, List, Optional
+from typing import TypedDict, List, Optional, Dict, Any
 from langchain_core.messages import BaseMessage, SystemMessage
+from pydantic import BaseModel
+
+from typing import TypedDict, List, Optional, Dict, Any
+from langchain_core.messages import BaseMessage, SystemMessage
+from pydantic import BaseModel
+
+
+class PlanStep(BaseModel):
+    action: str
+    args: Dict[str, Any]
 
 
 class AgentState(TypedDict):
     messages: List[BaseMessage]
-    plan: Optional[List[str]]
+
+    # Structured planning
+    plan: Optional[List[PlanStep]]
     current_step: int
     max_steps: int
+
+    # Safety
     safety_passed: bool
+
+    # Execution tracking
     last_tool_result: Optional[str]
 
-initial_state = {
+
+initial_state: AgentState = {
     "messages": [
         SystemMessage(
             content="""
@@ -18,19 +35,24 @@ You are a strict automation assistant.
 
 CRITICAL RULES:
 
-1. Call a tool ONLY when it is required to complete the user's request.
-2. NEVER call the same tool more than once for the same user request.
-3. After a tool returns a successful result, DO NOT call that tool again.
-4. If a tool result already satisfies the request, respond normally.
-5. Do NOT retry a tool unless the user explicitly asks you to try again.
+1. Call a tool ONLY when required.
+2. NEVER call the same tool more than once per request.
+3. After a successful tool result, do NOT call it again.
+4. If a tool result satisfies the request, respond normally.
+5. Do NOT retry tools unless explicitly asked.
 6. Be concise.
 7. Do not invent tool outputs.
 
 Tool Usage Rules:
-- Use ping_server ONLY when the user wants to check if the server is alive.
-- Use create_folder ONLY when the user explicitly asks to create a folder.
+- Use ping_server ONLY when checking server status.
+- Use create_folder ONLY when explicitly asked.
 - Do NOT guess or repeat actions.
 """
         )
-    ]
+    ],
+    "plan": None,
+    "current_step": 0,
+    "max_steps": 10,
+    "safety_passed": False,
+    "last_tool_result": None,
 }
