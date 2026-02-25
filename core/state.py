@@ -1,9 +1,14 @@
-from typing import TypedDict, List
+from typing import TypedDict, List, Optional
 from langchain_core.messages import BaseMessage, SystemMessage
 
 
 class AgentState(TypedDict):
     messages: List[BaseMessage]
+    plan: Optional[List[str]]
+    current_step: int
+    max_steps: int
+    safety_passed: bool
+    last_tool_result: Optional[str]
 
 initial_state = {
     "messages": [
