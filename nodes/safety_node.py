@@ -33,13 +33,9 @@ def safety_check(llm: LLM):
         result = llm.invoke(messages)
 
         raw = result.content
-        print(raw)
         try:
             content = json.loads(raw)
         except Exception as e:
-            print("Safety parsing failed:", e)
-            print("Raw output:", raw)
-
             # Fail CLOSED
             return {
                 **state,

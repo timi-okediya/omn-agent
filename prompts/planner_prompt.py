@@ -10,7 +10,14 @@ Do not add markdown.
 Do not add comments.
 
 Format:
-{{"steps":[{{"action": "action_name","args": {{ "key": "value" }}}}]}}
+{{
+  "steps": [
+    {{
+      "action": "action_name",
+      "args": {{"key": "value"}}
+    }}
+  ]
+}}
 """),
     ("human", "{task}")
 ])
