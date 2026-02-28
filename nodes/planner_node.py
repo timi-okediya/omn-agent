@@ -1,11 +1,13 @@
-from core.state import AgentState
+from core import AgentState, PlanStep
 from prompts.planner_prompt import PLANNER_PROMPT
 import json
+
 
 def planner(llm):
     def _node(state: AgentState):
 
         task = state["messages"][-1].content
+
         prompt = PLANNER_PROMPT.invoke({
             "task": task
         })
@@ -17,11 +19,23 @@ def planner(llm):
 
         try:
             parsed = json.loads(response.content)
-            state["steps"] = parsed["steps"]
+
+            steps = [
+                PlanStep(action=step["action"], args=step.get("args", {}))
+                for step in parsed.get("steps", [])
+            ]
+
+            return {
+                "plan": steps,
+                "current_step": 0,   # reset step counter
+            }
+
         except Exception as e:
             print("Planner JSON parsing failed:", e)
-            state["steps"] = []
 
-        return state
+            return {
+                "plan": [],
+                "current_step": 0,
+            }
 
     return _node

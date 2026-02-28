@@ -1,21 +1,28 @@
-from core.state import AgentState
-from prompts import SAFETY_PROMPT
+from core import AgentState
+from prompts.safety_prompt import SAFETY_PROMPT, SAFETY_PROMPT_FORMAT_INSTRUCTIONS
 from llm import LLM
-from pydantic import BaseModel
 import json
-import re
 
-from prompts.safety_prompt import SAFETY_PROMPT_FORMAT_INSTRUCTIONS
-from schemas.safety import SafetyCheck
 
 BLOCKED_KEYWORDS = [
-    "rm -rf",
-    "format disk",
-    "delete /",
-    "shutdown",
-    "reboot",
+    # File system destruction
+    "rm -rf", "rmdir", "del /f", "del /s", "format", "mkfs",
+    "shred", "wipe", "overwrite", "truncate",
+    # Database destruction
+    "DROP TABLE", "DROP DATABASE", "TRUNCATE TABLE",
+    "DELETE FROM", "DESTROY DATABASE",
+    # System/shell abuse
+    "sudo", "chmod 777", "chown", ":(){:|:&};:",
+    "dd if=", "fork bomb", "kill -9", "killall",
+    # Code execution / injection
+    "exec(", "eval(", "os.system(", "subprocess",
+    "shell=True", "__import__", "base64.decode",
+    # Network abuse
+    "reverse shell", "nc -e", "ncat", "curl | bash", "wget | sh",
+    # Secrets / env abuse
+    "cat /etc/passwd", "cat /etc/shadow", ".env",
+    "print(os.environ)", "dump credentials", "export secrets",
 ]
-
 
 
 def safety_check(llm: LLM):
@@ -33,20 +40,19 @@ def safety_check(llm: LLM):
         result = llm.invoke(messages)
 
         raw = result.content
+        print(raw)
+
         try:
             content = json.loads(raw)
-        except Exception as e:
-            # Fail CLOSED
+
             return {
-                **state,
-                "safe": False,
-                "safety_reason": "Safety parsing failed",
+                "safety_passed": content.get("is_safe", False)
             }
 
-        return {
-            **state,
-            "safe": content.get("is_safe", False),
-            "safety_reason": content.get("reason", ""),
-        }
+        except Exception:
+            # Fail CLOSED (safe default)
+            return {
+                "safety_passed": False
+            }
 
     return _node

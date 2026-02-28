@@ -1,34 +1,5 @@
 from core.state import AgentState
 
-
-def planner(llm):
-    def _node(state: AgentState):
-        planning_prompt = f"""
-        Break this development task into ordered actionable steps.
-
-        Task:
-        {state["messages"][-1].content}
-
-        Return steps as a numbered list.
-        """
-
-        response = llm.invoke(planning_prompt)
-
-        steps = [
-            s.split(".", 1)[-1].strip()
-            for s in response.content.split("\n")
-            if s.strip()
-        ]
-
-        return {
-            "plan": steps,
-            "current_step": 0,
-            "max_steps": 10,
-        }
-
-    return _node
-
-
 def executor(llm):
     def _node(state: AgentState):
         if state["current_step"] >= len(state["plan"]):

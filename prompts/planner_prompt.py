@@ -13,7 +13,7 @@ Format:
 {{
   "steps": [
     {{
-      "action": "action_name",
+      "action": "action name",
       "args": {{"key": "value"}}
     }}
   ]

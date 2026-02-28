@@ -20,8 +20,8 @@ workflow = StateGraph(AgentState)
 
 # nodes
 workflow.add_node("safety_check", safety_check(planner_llm))
-workflow.add_node("planner", planner(executor_llm))
-# workflow.add_node("executor", executor(executor_llm))
+workflow.add_node("planner", planner(planner_llm))
+workflow.add_node("executor", executor(executor_llm))
 # workflow.add_node("review", review(planner_llm))
 workflow.add_node("tools", ToolNode(TOOLS))
 
@@ -30,11 +30,10 @@ workflow.add_node("tools", ToolNode(TOOLS))
 workflow.add_edge(START, "safety_check")
 
 # # safety → planner OR END
-workflow.add_edge("safety_check", "planner")
-# workflow.add_conditional_edges(
-#     "safety_check",
-#     lambda state: "planner" if state["safety_passed"] else END,
-# )
+workflow.add_conditional_edges(
+    "safety_check",
+    lambda state: "planner" if state.get("safety_passed") else END,
+)
 
 # # planner → executor
 # workflow.add_edge("planner", "executor")
