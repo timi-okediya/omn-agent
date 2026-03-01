@@ -1,15 +1,10 @@
 from typing import TypedDict, List, Optional, Dict, Any
-from langchain_core.messages import BaseMessage, SystemMessage
-from pydantic import BaseModel
-
-from typing import TypedDict, List, Optional, Dict, Any
-from langchain_core.messages import BaseMessage, SystemMessage
+from langchain_core.messages import BaseMessage
 from pydantic import BaseModel
 
 
 class PlanStep(BaseModel):
     action: str
-    args: Dict[str, Any]
 
 
 class AgentState(TypedDict):
@@ -18,7 +13,9 @@ class AgentState(TypedDict):
     current_step: int
     max_steps: int
     safety_passed: bool
+    review_passed: bool
     last_tool_result: Optional[str]
+    retry_count: int
 
 
 initial_state: AgentState = {
@@ -27,5 +24,7 @@ initial_state: AgentState = {
     "current_step": 0,
     "max_steps": 10,
     "safety_passed": False,
+    "review_passed": False,
     "last_tool_result": None,
+    "retry_count": 0,
 }

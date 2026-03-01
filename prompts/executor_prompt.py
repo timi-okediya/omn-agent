@@ -1,34 +1,25 @@
 from langchain_core.prompts import ChatPromptTemplate
 
-EXECUTION_PROMPT = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """You are a deterministic execution engine.
+EXECUTION_PROMPT = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        """You are a deterministic execution agent.
 
 STRICT RULES:
-- Execute ONLY the given action using its arguments.
-- Do NOT modify the action.
-- Do NOT explain reasoning.
-- If execution fails, respond exactly:
-  FAILED: <short reason>
-- If successful, return ONLY the result.
+- Read the step description and call the appropriate tool with the correct arguments.
+- Do NOT explain your reasoning.
+- Do NOT modify or reinterpret the step.
+- Call exactly ONE tool per step.
+- If execution fails, respond exactly: FAILED: <short reason>
 - No markdown. No extra text.
 """
-        ),
-        (
-            "human",
-            """ACTION:
+    ),
+    (
+        "human",
+        """STEP {step_number}/{total_steps}:
 {action}
 
-ARGUMENTS:
-{args}
-
-STEP: {step_number}/{total_steps}
-
-PREVIOUS TOOL RESULT:
-{last_tool_result}
+{previous_result}
 """
-        ),
-    ]
-)
+    ),
+])

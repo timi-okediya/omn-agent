@@ -1,49 +1,83 @@
-from core.state import AgentState
-
-def executor(llm):
-    def _node(state: AgentState):
-        if state["current_step"] >= len(state["plan"]):
-            return {}
-
-        if state["current_step"] >= state["max_steps"]:
-            return {
-                "messages": [
-                    llm.invoke("Execution stopped: max steps reached.")
-                ]
-            }
-
-        step = state["plan"][state["current_step"]]
-
-        execution_prompt = f"""
-        You are executing this step safely:
-
-        Step:
-        {step}
-
-        Use tools if necessary.
-        """
-
-        response = llm.invoke(execution_prompt)
-
-        return {
-            "messages": [response],
-            "current_step": state["current_step"] + 1,
-        }
-
-    return _node
+from core import AgentState
+from langchain_core.messages import AIMessage, SystemMessage, HumanMessage, ToolMessage
 
 
 def review(llm):
     def _node(state: AgentState):
-        review_prompt = """
-        Review the completed steps.
-        Are all steps done correctly?
-        If yes, say COMPLETE.
-        If not, explain what is missing.
-        """
+        plan = state.get("plan") or []
+        messages = state.get("messages") or []
+        last_tool_result = state.get("last_tool_result", "No result recorded.")
+        retry_count = state.get("retry_count", 0)
 
-        response = llm.invoke(review_prompt)
+        # Collect all tool results from message history
+        tool_results = [
+            f"- {m.name}: {m.content}"
+            for m in messages
+            if isinstance(m, ToolMessage)
+        ]
+        tool_results_str = "\n".join(tool_results) if tool_results else last_tool_result
 
-        return {"messages": [response]}
+        plan_summary = "\n".join(
+            f"- Step {i+1}: {step.action}"
+            for i, step in enumerate(plan)
+        )
+
+        prompt = [
+            SystemMessage(content=(
+                "You are a review agent. "
+                "Check if all planned steps were completed successfully based on the tool results. "
+                "Reply with COMPLETE if everything is done. "
+                "Otherwise reply with INCOMPLETE: <reason>. "
+                "Always include the actual tool results in your response."
+            )),
+            HumanMessage(content=f"""
+PLAN:
+{plan_summary}
+
+TOOL RESULTS:
+{tool_results_str}
+
+Were all steps completed successfully? Include the tool results in your response.
+""")
+        ]
+
+        response = llm.invoke(prompt)
+        passed = "COMPLETE" in (response.content or "").upper()
+
+        # Build a human-readable summary to print
+        summary = f"\n{'='*40}\n"
+        summary += "TASK RESULTS:\n"
+        summary += f"{tool_results_str}\n"
+        summary += f"\nREVIEW: {response.content}\n"
+        summary += f"{'='*40}\n"
+        print(summary)
+
+        return {
+            "messages": [response],
+            "review_passed": passed,
+            "retry_count": retry_count + 1,
+        }
+
+    return _node
+
+def responder():
+    def _node(state: AgentState):
+        messages = state.get("messages") or []
+        plan = state.get("plan") or []
+
+        tool_results = [
+            m for m in messages if isinstance(m, ToolMessage)
+        ]
+
+        lines = ["Here's what was done:\n"]
+        for i, (step, result) in enumerate(zip(plan, tool_results)):
+            lines.append(f"Step {i+1}: {step.action}")
+            lines.append(f"Result: {result.content}\n")
+
+        summary = "\n".join(lines)
+
+        return {
+            "messages": [AIMessage(content=summary)]
+        }
 
     return _node

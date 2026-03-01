@@ -15,7 +15,8 @@ def planner(llm):
         response = llm.invoke(prompt)
 
         print("\n===== RAW LLM OUTPUT =====")
-        print(response.content)
+        # print(response.content)
+        print(response)
 
         try:
             parsed = json.loads(response.content)
