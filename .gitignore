@@ -1,13 +1,11 @@
-# Virtual Environment
-.venv/
-venv/
-env/
+# ===============================
+# Python (Backend)
+# ===============================
 
-# JetBrains IDE
-.idea/
-
-# VS Code
-.vscode/
+# Virtual environments
+backend/.venv/
+backend/venv/
+backend/env/
 
 # Python cache
 __pycache__/
@@ -26,31 +24,54 @@ dist/
 # Environment variables
 .env
 .env.*
-
-# OS files
-.DS_Store
-Thumbs.db
+backend/.env
+backend/.env.*
 
 # Coverage / testing
 .coverage
 htmlcov/
 .pytest_cache/
 
+# Type checkers / linters
+.mypy_cache/
+.pyright/
+.ruff_cache/
+
 # Jupyter
 .ipynb_checkpoints/
 
-# Mypy
-.mypy_cache/
+# ===============================
+# Node / Electron (Desktop)
+# ===============================
 
-# Pyright
-.pyright/
+desktop/node_modules/
+desktop/dist/
+desktop/build/
+desktop/out/
 
-# Ruff
-.ruff_cache/
+# Electron Builder artifacts
+desktop/*.exe
+desktop/*.dmg
+desktop/*.AppImage
+desktop/*.zip
 
-# Node (if you mix frontend)
-node_modules/
+# ===============================
+# IDEs
+# ===============================
 
-# LangChain / local models cache (optional)
+.idea/
+.vscode/
+
+# ===============================
+# OS
+# ===============================
+
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Local databases / models
+# ===============================
+
 *.db
 *.sqlite3
