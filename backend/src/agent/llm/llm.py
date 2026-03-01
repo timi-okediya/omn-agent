@@ -5,7 +5,7 @@ from tools import TOOLS
 class LLM:
     def __init__(
         self,
-        model: str = "qwen2.5:3b",
+        model: str = "qwen2.5:1.5b",
         temperature: float = 0.0,
         num_ctx: int = 4096,
         top_p: float = 0.9,

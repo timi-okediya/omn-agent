@@ -1,9 +1,8 @@
 from langgraph.graph import StateGraph, END, START
 from langgraph.prebuilt import ToolNode
 
-from core.nodes import review, responder
 from core.state import AgentState
-from nodes import safety_check, planner, executor
+from nodes import safety_check, planner, executor, review
 from llm import LLM
 from tools import TOOLS
 
@@ -26,9 +25,9 @@ def executor_router(state: AgentState):
 
 def review_router(state: AgentState):
     if state.get("review_passed"):
-        return "responder"
+        return END
     if state.get("retry_count", 0) >= 2:
-        return "responder" 
+        return END
     return "planner"
 
 
@@ -39,7 +38,6 @@ workflow.add_node("planner", planner(planner_llm))
 workflow.add_node("executor", executor(executor_llm))
 workflow.add_node("tools", ToolNode(TOOLS))
 workflow.add_node("review", review(planner_llm))
-workflow.add_node("responder", responder())  # ← added
 
 workflow.add_edge(START, "safety_check")
 
@@ -48,14 +46,14 @@ workflow.add_conditional_edges(
     lambda state: "planner" if state.get("safety_passed") else END,
 )
 
-workflow.add_edge("planner", "executor")
+workflow.add_edge("planner", END)
 
-workflow.add_conditional_edges("executor", executor_router)
+# workflow.add_edge("planner", "executor")
 
-workflow.add_edge("tools", "executor")
+# workflow.add_conditional_edges("executor", executor_router)
 
-workflow.add_conditional_edges("review", review_router)
+# workflow.add_edge("tools", "executor")
 
-workflow.add_edge("responder", END)  # ← added
+# workflow.add_conditional_edges("review", review_router)
 
 app = workflow.compile()

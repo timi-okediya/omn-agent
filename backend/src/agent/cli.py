@@ -1,6 +1,5 @@
-# groq api => 
 from langchain_core.messages import HumanMessage
-from core.graph import app
+from graph import app
 from core.state import initial_state
 
 print("Automation Assistant Ready. Type 'exit' to quit.\n")
