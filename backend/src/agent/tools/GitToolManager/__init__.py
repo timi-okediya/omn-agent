@@ -1,3 +1,1 @@
-from .manager import GitToolManager
-
-
+from .tools import GIT_TOOLS
