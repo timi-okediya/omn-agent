@@ -8,9 +8,28 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
 let win;
-
+// let childwin
 function createWindow() {
-  win = new BrowserWindow();
+  // parentWind = new BrowserWindow()
+  // childwind = new BrowserWindow({
+  //   parent: parentWind,
+  //   title: "child",
+  //   modal: true
+  // })
+  // childwind.loadURL("https...")
+  // childwind.once('ready-to-show', () => childwind.show())
+  win = new BrowserWindow(
+    {
+      width: 600,
+      height: 600,
+      maxHeight: 600,
+      maxWidth: 600,
+      // backgroundColor: "#000",
+      frame: false
+    }
+  );
+
+
 
   win.loadURL(
     url.format({

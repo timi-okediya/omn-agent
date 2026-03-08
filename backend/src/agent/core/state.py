@@ -16,6 +16,8 @@ class AgentState(TypedDict):
     review_passed: bool
     last_tool_result: Optional[str]
     retry_count: int
+    reflection: Optional[str]
+    reflection_passed: bool
 
 
 initial_state: AgentState = {
@@ -27,4 +29,6 @@ initial_state: AgentState = {
     "review_passed": False,
     "last_tool_result": None,
     "retry_count": 0,
+    "reflection": None,
+    "reflection_passed": False,
 }

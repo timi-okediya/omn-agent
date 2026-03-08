@@ -22,7 +22,7 @@ def planner(llm):
             parsed = json.loads(response.content)
 
             steps = [
-                PlanStep(action=step["action"], args=step.get("args", {}))
+                PlanStep(action=step["action"])
                 for step in parsed.get("steps", [])
             ]
 
