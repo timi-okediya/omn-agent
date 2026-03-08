@@ -18,6 +18,7 @@ class AgentState(TypedDict):
     retry_count: int
     reflection: Optional[str]
     reflection_passed: bool
+    user_message: Optional[str]
 
 
 initial_state: AgentState = {
@@ -31,4 +32,5 @@ initial_state: AgentState = {
     "retry_count": 0,
     "reflection": None,
     "reflection_passed": False,
+    "user_message": None,
 }

@@ -14,9 +14,9 @@ def planner(llm):
 
         response = llm.invoke(prompt)
 
-        print("\n===== RAW LLM OUTPUT =====")
-        # print(response.content)
-        print(response)
+        # print("\n===== RAW LLM OUTPUT =====")
+        # # print(response.content)
+        # print(response)
 
         try:
             parsed = json.loads(response.content)
@@ -28,15 +28,16 @@ def planner(llm):
 
             return {
                 "plan": steps,
-                "current_step": 0,   # reset step counter
+                "current_step": 0,
+                "user_message": f"Planned {len(steps)} step(s): " + ", ".join(s.action for s in steps[:3]) + ("..." if len(steps) > 3 else "")
             }
 
         except Exception as e:
             print("Planner JSON parsing failed:", e)
-
             return {
                 "plan": [],
                 "current_step": 0,
+                "user_message": f"Planning failed: {str(e)}"
             }
 
     return _node

@@ -4,7 +4,6 @@ from core.state import initial_state
 
 print("Automation Assistant Ready. Type 'exit' to quit.\n")
 
-# Create working state copy
 state = {
     "messages": initial_state["messages"].copy()
 }
@@ -16,11 +15,16 @@ while True:
         print("Goodbye.")
         break
 
-    # Add user message
     state["messages"].append(HumanMessage(content=user_input))
+    state["user_message"] = None
 
-    # Run graph
-    state = app.invoke(state)
+    for event in app.stream(state):
+        node_name = list(event.keys())[0]
+        node_output = event[node_name]
+        
+        if "user_message" in node_output and node_output["user_message"]:
+            print(f"\n>>> {node_output['user_message']}\n")
+        
+        state = node_output
 
-    # Print last assistant message
     print("Assistant:", state["messages"][-1].content)

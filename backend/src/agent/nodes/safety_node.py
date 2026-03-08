@@ -44,15 +44,19 @@ def safety_check(llm: LLM):
 
         try:
             content = json.loads(raw)
+            is_safe = content.get("is_safe", False)
+            reason = content.get("reason", "")
 
             return {
-                "safety_passed": content.get("is_safe", False)
+                "safety_passed": is_safe,
+                "user_message": f"Safety check: {'Approved' if is_safe else 'Blocked'} - {reason}"
             }
 
-        except Exception:
-            # Fail CLOSED (safe default)
+        except Exception as e:
+            print(f"Safety check error: {e}")
             return {
-                "safety_passed": False
+                "safety_passed": False,
+                "user_message": "Safety check: Blocked (unable to verify)"
             }
 
     return _node

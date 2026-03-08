@@ -28,7 +28,7 @@ def reflection_router(state: AgentState):
         return "review"
     if state.get("retry_count", 0) >= 3:
         return "review"
-    return "planner"
+    return "executor"
 
 
 def review_router(state: AgentState):
@@ -36,7 +36,7 @@ def review_router(state: AgentState):
         return END
     if state.get("retry_count", 0) >= 3:
         return END
-    return "planner"
+    return "executor"
 
 
 workflow = StateGraph(AgentState)

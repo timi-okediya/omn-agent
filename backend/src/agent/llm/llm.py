@@ -1,3 +1,4 @@
+import os
 from langchain_ollama import ChatOllama
 from tools import TOOLS
 
@@ -5,14 +6,17 @@ from tools import TOOLS
 class LLM:
     def __init__(
         self,
-        model: str = "qwen2.5:1.5b",
+        model: str = None,
         temperature: float = 0.0,
         num_ctx: int = 4096,
         top_p: float = 0.9,
         num_predict: int = -1,
-        base_url: str = "http://172.23.16.1:11434",
-        bind_tools: bool = False,   # ← opt-in, off by default
+        base_url: str = None,
+        bind_tools: bool = False,
     ):
+        model = model or os.getenv("LLM_MODEL", "qwen2.5:3b")
+        base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://172.23.16.1:11434")
+
         self.llm = ChatOllama(
             model=model,
             temperature=temperature,
@@ -29,6 +33,5 @@ class LLM:
         return self.llm.invoke(messages, **kwargs)
 
     def with_tools(self):
-        """Return a new LLM instance with tools bound."""
         self.llm = self.llm.bind_tools(TOOLS)
         return self

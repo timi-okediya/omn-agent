@@ -28,6 +28,7 @@ def reflection(llm):
             "messages": [response],
             "reflection": response.content,
             "reflection_passed": passed,
+            "user_message": f"Reflection: {'Passed' if passed else 'Needs revision'} - {response.content[:100]}..." if response.content else "Reflecting..."
         }
 
     return _node

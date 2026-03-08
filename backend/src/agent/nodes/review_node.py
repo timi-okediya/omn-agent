@@ -40,6 +40,7 @@ def review(llm):
             "messages": [response],
             "review_passed": passed,
             "retry_count": retry_count + 1,
+            "user_message": f"Final review: {'Complete' if passed else 'Incomplete'} - {response.content[:100]}..." if response.content else "Final review..."
         }
 
     return _node
